@@ -26,6 +26,6 @@ func (b *BinExport) Run() error {
 	if err := proto.Unmarshal(data, &exp); err != nil {
 		return fmt.Errorf("failed to unmarshal BinExport2: %w", err)
 	}
-	_ = exp
+	fmt.Println(exp.MetaInformation)
 	return nil
 }

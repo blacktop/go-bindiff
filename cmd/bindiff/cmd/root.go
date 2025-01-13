@@ -26,7 +26,7 @@ import (
 
 	"github.com/apex/log"
 	clihander "github.com/apex/log/handlers/cli"
-	"github.com/blacktop/bindiff/pkg/binexport"
+	"github.com/blacktop/go-bindiff/pkg/binexport"
 	"github.com/spf13/cobra"
 )
 
