@@ -14,7 +14,7 @@
 
 ## Getting Started
 
-```
+```bash
 go get github.com/blacktop/go-bindiff
 ```
 
@@ -22,13 +22,13 @@ go get github.com/blacktop/go-bindiff
 
 Install
 
-```
+```bash
 go install github.com/blacktop/go-bindiff/cmd/bindiff@latest
 ```
 
 Usage
 
-```
+```bash
 ❯ bindiff path/to/BinExport1 path/to/BinExport2
 ```
 ```bash
