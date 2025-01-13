@@ -28,4 +28,5 @@ go.work.sum
 __debug*
 
 # misc
+test/
 *.proto

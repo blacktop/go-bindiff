@@ -22,26 +22,38 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/apex/log"
 	clihander "github.com/apex/log/handlers/cli"
-	"github.com/blacktop/go-bindiff/pkg/binexport"
+	"github.com/blacktop/go-bindiff"
 	"github.com/spf13/cobra"
 )
 
-var verbose bool
+var (
+	verbose bool
+	output  string
+)
+
+func trim(in string) string {
+	if len(in) > 60 {
+		return in[:60] + "..."
+	}
+	return in
+}
 
 func init() {
 	log.SetHandler(clihander.Default)
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "V", false, "Enable verbose logging")
+	rootCmd.PersistentFlags().StringVarP(&output, "output", "o", "", "Output directory")
 }
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:           "bindiff",
 	Short:         "Run bindiff",
-	Args:          cobra.ExactArgs(1),
+	Args:          cobra.ExactArgs(2),
 	SilenceErrors: true,
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -49,9 +61,32 @@ var rootCmd = &cobra.Command{
 			log.SetLevel(log.DebugLevel)
 		}
 
-		if err := binexport.NewBinExport(args[0]).Run(); err != nil {
-			log.Fatalf("failed to run binexport: %v", err)
+		bd, err := bindiff.NewBinDiff(args[0], args[1], output)
+		if err != nil {
+			log.Fatalf("failed to create binexport: %v", err)
 		}
+		defer bd.Close()
+
+		log.Info("Running bindiff...")
+		if err := bd.Run(); err != nil {
+			log.Fatalf("failed to run bindiff: %v", err)
+		}
+
+		log.Info("Reading bindiff results...")
+		if err := bd.Read(); err != nil {
+			log.Fatalf("failed to read bindiff: %v", err)
+		}
+
+		log.Info("bindiff complete")
+		// w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+		for _, f := range bd.FunctionMatches() {
+			log.WithFields(log.Fields{
+				"similarity": fmt.Sprintf("%.2f", f.Similarity),
+				"confidence": fmt.Sprintf("%.2f", f.Confidence),
+			}).Info(trim(f.Name2))
+			// fmt.Fprintf(w, "%s\t%.2f\t%.2f\n", trim(f.Name2), f.Similarity, f.Confidence)
+		}
+		// w.Flush()
 	},
 }
 
