@@ -58,7 +58,7 @@ func (b *BinExport) Dump() {
 							case BinExport2_Expression_IMMEDIATE_INT:
 								out += fmt.Sprintf("%d", int64(exp.GetImmediate()))
 							case BinExport2_Expression_IMMEDIATE_FLOAT:
-								out += fmt.Sprintf("%f", exp.GetImmediate())
+								out += exp.GetSymbol()
 							case BinExport2_Expression_OPERATOR:
 								out += exp.GetSymbol()
 							case BinExport2_Expression_REGISTER:
