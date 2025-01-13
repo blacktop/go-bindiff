@@ -1,7 +1,16 @@
-# go-bindiff
-[![Go](https://github.com/blacktop/go-bindiff/actions/workflows/go.yml/badge.svg)](https://github.com/blacktop/go-bindiff/actions/workflows/go.yml) [![Go Reference](https://pkg.go.dev/badge/github.com/blacktop/go-bindiff.svg)](https://pkg.go.dev/github.com/blacktop/go-bindiff) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
-
-> Go package to interface with bindiff
+<p align="center">
+  <a href="https://github.com/blacktop/go-bindiff"><img alt="Logo" src="https://github.com/blacktop/go-bindiff/raw/master/logo.png" height="140" /></a>
+  <h1 align="center">go-bindiff</h1>
+  <h4><p align="center">Go package to interface with bindiff</p></h4>
+  <p align="center">
+    <a href="https://github.com/blacktop/go-bindiff/actions" alt="Actions">
+          <img src="https://github.com/blacktop/go-bindiff/actions/workflows/go.yml/badge.svg" /></a>
+    <a href="https://pkg.go.dev/github.com/blacktop/go-bindiff" alt="Docs">
+          <img src="https://pkg.go.dev/badge/github.com/blacktop/go-bindiff.svg" /></a>
+    <a href="http://doge.mit-license.org" alt="LICENSE">
+          <img src="https://img.shields.io/:license-mit-blue.svg" /></a>
+</p>
+<br>
 
 ## Getting Started
 
