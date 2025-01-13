@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/blacktop/go-bindiff"><img alt="Logo" src="https://github.com/blacktop/go-bindiff/raw/master/logo.png" height="140" /></a>
+  <a href="https://github.com/blacktop/go-bindiff"><img alt="Logo" src="https://github.com/blacktop/go-bindiff/raw/main/logo.png" height="200" /></a>
   <h1 align="center">go-bindiff</h1>
   <h4><p align="center">Go package to interface with bindiff</p></h4>
   <p align="center">
