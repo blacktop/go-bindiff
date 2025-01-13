@@ -30,3 +30,4 @@ __debug*
 # misc
 test/
 *.proto
+bindiff

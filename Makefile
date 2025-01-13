@@ -7,4 +7,4 @@ bump:
 .PHONY: build
 build:
 	@echo "🚀 Building Version $(shell svu current)"
-	go build -o bindiff ./cmd/bindiff/main.go
+	@cd cmd/bindiff; go build -o ../../bindiff main.go
