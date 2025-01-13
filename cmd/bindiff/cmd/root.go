@@ -49,8 +49,7 @@ var rootCmd = &cobra.Command{
 			log.SetLevel(log.DebugLevel)
 		}
 
-		binexport := binexport.NewBinExport(args[0])
-		if err := binexport.Run(); err != nil {
+		if err := binexport.NewBinExport(args[0]).Run(); err != nil {
 			log.Fatalf("failed to run binexport: %v", err)
 		}
 	},
