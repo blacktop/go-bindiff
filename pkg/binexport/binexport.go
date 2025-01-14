@@ -3,22 +3,52 @@ package binexport
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 
 	"google.golang.org/protobuf/proto"
 )
+
+const bindiffExePath = "/Applications/BinDiff/BinDiff.app/Contents/MacOS/bin/bindiff"
 
 type BinExport struct {
 	bexp2 BinExport2
 }
 
-func NewBinExport(path string) (*BinExport, error) {
-	data, err := os.ReadFile(path)
+func runBinExportCmd(path string) (string, error) {
+	cmd := exec.Command(bindiffExePath, "--export", filepath.Dir(path))
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("failed to read %s: %w", path, err)
+		return "", fmt.Errorf("failed to run bindiff --export: %v: cmd output - '%s'", err, out)
 	}
+	// return new path of .BinExport file
+	//   (NOTE: the assumption is that the BinExport file is in the same directory as the input file)
+	return filepath.Join(
+		filepath.Dir(path),
+		strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))+".BinExport"), nil
+}
+
+func NewBinExport(path string) (*BinExport, error) {
 	var b BinExport
-	if err := proto.Unmarshal(data, &b.bexp2); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal BinExport2: %w", err)
+	switch filepath.Ext(path) {
+	case ".i64":
+		var err error
+		path, err = runBinExportCmd(path)
+		if err != nil {
+			return nil, fmt.Errorf("failed to run bindiff --export: %w", err)
+		}
+		fallthrough
+	case ".BinExport":
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read %s: %w", path, err)
+		}
+		if err := proto.Unmarshal(data, &b.bexp2); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal BinExport2: %w", err)
+		}
+	default:
+		return nil, fmt.Errorf("unsupported file extension: %s", filepath.Ext(path))
 	}
 	return &b, nil
 }
@@ -40,39 +70,41 @@ func (b *BinExport) Dump() {
 		bb := b.bexp2.BasicBlock[flow.GetEntryBasicBlockIndex()]
 		for _, blockInst := range bb.GetInstructionIndex() {
 			var prevAddr uint64
-			for _, inst := range b.bexp2.Instruction[blockInst.GetBeginIndex():blockInst.GetEndIndex()] {
-				if inst.Address != nil {
-					mnemonic := b.bexp2.Mnemonic[inst.GetMnemonicIndex()]
-					fmt.Printf("%#x: %s\n", inst.GetAddress(), mnemonic.GetName())
-					prevAddr = inst.GetAddress()
-				} else {
-					mnemonic := b.bexp2.Mnemonic[inst.GetMnemonicIndex()]
-					var out string
-					for _, oidx := range inst.GetOperandIndex() {
-						for _, eidx := range b.bexp2.Operand[oidx].GetExpressionIndex() {
-							exp := b.bexp2.Expression[eidx]
-							fmt.Printf("expression: %d) %s\n", eidx, exp)
-							switch exp.GetType() {
-							case BinExport2_Expression_SYMBOL:
-								out += exp.GetSymbol()
-							case BinExport2_Expression_IMMEDIATE_INT:
-								out += fmt.Sprintf("%d", int64(exp.GetImmediate()))
-							case BinExport2_Expression_IMMEDIATE_FLOAT:
-								out += exp.GetSymbol()
-							case BinExport2_Expression_OPERATOR:
-								out += exp.GetSymbol()
-							case BinExport2_Expression_REGISTER:
-								out += exp.GetSymbol() + ", "
-							case BinExport2_Expression_SIZE_PREFIX:
-								// out += exp.GetSymbol()
-							case BinExport2_Expression_DEREFERENCE:
-								out += exp.GetSymbol()
-							default:
-								out += "unknown"
+			if blockInst.BeginIndex != nil && blockInst.EndIndex != nil {
+				for _, inst := range b.bexp2.Instruction[blockInst.GetBeginIndex():blockInst.GetEndIndex()] {
+					if inst.Address != nil {
+						mnemonic := b.bexp2.Mnemonic[inst.GetMnemonicIndex()]
+						fmt.Printf("%#x: %s\n", inst.GetAddress(), mnemonic.GetName())
+						prevAddr = inst.GetAddress()
+					} else {
+						mnemonic := b.bexp2.Mnemonic[inst.GetMnemonicIndex()]
+						var out string
+						for _, oidx := range inst.GetOperandIndex() {
+							for _, eidx := range b.bexp2.Operand[oidx].GetExpressionIndex() {
+								exp := b.bexp2.Expression[eidx]
+								fmt.Printf("expression: %d) %s\n", eidx, exp)
+								switch exp.GetType() {
+								case BinExport2_Expression_SYMBOL:
+									out += exp.GetSymbol()
+								case BinExport2_Expression_IMMEDIATE_INT:
+									out += fmt.Sprintf("%d", int64(exp.GetImmediate()))
+								case BinExport2_Expression_IMMEDIATE_FLOAT:
+									out += exp.GetSymbol()
+								case BinExport2_Expression_OPERATOR:
+									out += exp.GetSymbol()
+								case BinExport2_Expression_REGISTER:
+									out += exp.GetSymbol() + ", "
+								case BinExport2_Expression_SIZE_PREFIX:
+									// out += exp.GetSymbol()
+								case BinExport2_Expression_DEREFERENCE:
+									out += exp.GetSymbol()
+								default:
+									out += "unknown"
+								}
 							}
 						}
+						fmt.Printf("%#x: %s\t%s\n", prevAddr, mnemonic.GetName(), out)
 					}
-					fmt.Printf("%#x: %s\t%s\n", prevAddr, mnemonic.GetName(), out)
 				}
 			}
 		}

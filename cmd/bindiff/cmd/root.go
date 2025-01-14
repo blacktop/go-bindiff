@@ -67,17 +67,17 @@ var rootCmd = &cobra.Command{
 		}
 		defer bd.Close()
 
-		log.Info("Running bindiff...")
+		log.Debug("Running BinDiff...")
 		if err := bd.Run(); err != nil {
 			log.Fatalf("failed to run bindiff: %v", err)
 		}
 
-		log.Info("Reading bindiff results...")
+		log.Debug("Reading BinDiff results...")
 		if err := bd.Read(); err != nil {
 			log.Fatalf("failed to read bindiff: %v", err)
 		}
 
-		log.Info("bindiff complete")
+		log.Debug("BinDiff Complete")
 		// w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 		for _, f := range bd.FunctionMatches() {
 			log.WithFields(log.Fields{
