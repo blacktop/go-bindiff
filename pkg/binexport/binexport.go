@@ -48,7 +48,7 @@ func NewBinExport(path string) (*BinExport, error) {
 			return nil, fmt.Errorf("failed to unmarshal BinExport2: %w", err)
 		}
 	default:
-		return nil, fmt.Errorf("unsupported file extension: %s", filepath.Ext(path))
+		return nil, fmt.Errorf("unsupported file extension: %s (expected .BinExport or .i64)", filepath.Ext(path))
 	}
 	return &b, nil
 }
