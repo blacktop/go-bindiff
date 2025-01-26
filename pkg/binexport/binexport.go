@@ -17,16 +17,24 @@ type BinExport struct {
 }
 
 func runBinExportCmd(path string) (string, error) {
+	// create new path of .BinExport file
+	//   (NOTE: the assumption is that the BinExport file is in the same directory as the input file)
+	binexportPath := filepath.Join(
+		filepath.Dir(path),
+		strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))+".BinExport")
+	// check if .BinExport file already exists
+	if _, err := os.Stat(binexportPath); err == nil {
+		return binexportPath, nil
+	}
 	cmd := exec.Command(bindiffExePath, "--export", filepath.Dir(path))
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("failed to run bindiff --export: %v: cmd output - '%s'", err, out)
 	}
-	// return new path of .BinExport file
-	//   (NOTE: the assumption is that the BinExport file is in the same directory as the input file)
-	return filepath.Join(
-		filepath.Dir(path),
-		strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))+".BinExport"), nil
+	if _, err := os.Stat(binexportPath); os.IsNotExist(err) {
+		return "", fmt.Errorf("failed to create .BinExport file: %s", binexportPath)
+	}
+	return binexportPath, nil
 }
 
 func NewBinExport(path string) (*BinExport, error) {

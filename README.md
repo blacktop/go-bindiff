@@ -47,7 +47,7 @@ Usage
    • cchmac_final              confidence=0.99 similarity=1.00
    • ccdigest_final_64be       confidence=0.99 similarity=1.00
    <SNIP>
-   ```
+```
 
 ## License
 
