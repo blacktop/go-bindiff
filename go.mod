@@ -5,7 +5,7 @@ go 1.23
 require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/shopspring/decimal v1.4.0
-	google.golang.org/protobuf v1.36.7
+	google.golang.org/protobuf v1.36.9
 	gorm.io/gorm v1.30.1
 )
 
